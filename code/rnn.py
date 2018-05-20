@@ -109,7 +109,14 @@ def pad_sequences(data, max_length):
     zero_label = 4 # corresponds to the 'O' tag
 
     for sentence, labels in data:
-        ### YOUR CODE HERE (~4-6 lines)
+        length_diff = max_length-len(sentence)
+        if length_diff > 0 :
+            new_sentence = sentence + zero_vector * length_diff
+            new_labels = labels + [zero_label] * length_diff
+            mask = [True] * len(sentence) + [False] * length_diff
+            ret.append(new_sentence, new_labels, mask)
+        else:
+            ret.append(sentence[:max_length], labels[:max_length], [True] * max_length)
 
         ### END YOUR CODE ###
     return ret
@@ -253,8 +260,8 @@ class RNNModel(NERModel):
 
         ### END YOUR CODE
 
-        with tf.variable_scope("RNN"):
-            for time_step in range(self.max_length):
+        #with tf.variable_scope("RNN"):
+        #    for time_step in range(self.max_length):
                 ### YOUR CODE HERE (~6-10 lines)
 
                 ### END YOUR CODE
