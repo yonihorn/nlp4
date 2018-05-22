@@ -223,7 +223,7 @@ class RNNModel(NERModel):
             embeddings: tf.Tensor of shape (None, max_length, n_features*embed_size)
         """
         ### YOUR CODE HERE (~4-6 lines)
-        # initialize the embedding tensor
+        # initialize the embedding tensor (and train it!)
         embedding_tensor = tf.Variable(self.pretrained_embeddings) 
         lookup_embeddings = tf.nn.embedding_lookup(embedding_tensor, # the initialized embedding vector
             self.input_placeholder)  # ids
@@ -282,21 +282,26 @@ class RNNModel(NERModel):
         hidden_size = self.config.hidden_size
         n_classes = self.config.n_classes
         initializer = tf.contrib.layers.xavier_initializer()
-        U = tf.Variable(initializer((hidden_size, n_classes)))
-        b2 = tf.Variable(tf.zeros(n_classes))
 
-        h = tf.zeros((1, hidden_size)) # zero h
+        # initialize U
+        U = tf.Variable(initializer((hidden_size, n_classes)))
+        # initialize b2
+        b2 = tf.Variable(tf.zeros(n_classes))
+        # zero h
+        h = tf.zeros((1, hidden_size))
         ### END YOUR CODE
 
         with tf.variable_scope("RNN"):
            for time_step in range(self.max_length):
                 ### YOUR CODE HERE (~6-10 lines)
-                o, h = cell(x[:, time_step, :], h)
-                tf.get_variable_scope().reuse_variables()
-                o_drop_t = tf.nn.dropout(o, self.dropout_placeholder)
-                out = tf.matmul(o_drop_t, U) + b2
+                # in order to not create new variables in the RNN cell.
+                if time_step > 0: # from second iteration
+                    tf.get_variable_scope().reuse_variables()
+                o_t, h = cell(x[:, time_step, :], h)
+                o_drop_t = tf.nn.dropout(o_t, self.dropout_placeholder)
+                y_t = tf.matmul(o_drop_t, U) + b2
 
-                preds.append(out)
+                preds.append(y_t)
                 ### END YOUR CODE
 
         # Make sure to reshape @preds here.
