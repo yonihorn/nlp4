@@ -156,14 +156,14 @@ class RNNModel(NERModel):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE (~4-6 lines)
-        self.input_placeholder = tf.placeholder(tf.int32, shape=
-            [None, self.max_length, self.config.n_features])
-        self.labels_placeholder = tf.placeholder(tf.int32,
-            shape=[None, self.max_length])
-        self.mask_placeholder = tf.placeholder(tf.bool,
-            shape=[None, self.max_length])
-        self.dropout_placeholder = tf.placeholder(tf.float32,
-            shape=[])
+        self.input_placeholder = tf.placeholder(dtype=tf.int32,
+            shape=[None, self.max_length, self.config.n_features], name="input")
+        self.labels_placeholder = tf.placeholder(dtype=tf.int32,
+            shape=[None, self.max_length], name="labels")
+        self.mask_placeholder = tf.placeholder(dtype=tf.bool,
+            shape=[None, self.max_length], name="mask")
+        self.dropout_placeholder = tf.placeholder(dtype=tf.float32,
+            shape=[], name="dropout")
 
         ### END YOUR CODE
 
@@ -191,7 +191,7 @@ class RNNModel(NERModel):
         """
         ### YOUR CODE (~6-10 lines)
         feed_dict = {}
-        self.add_placeholders() # add the four placeholder (as self attributes)
+        # add values to dictionary, only if the current argument is not None
         if inputs_batch is not None:
             feed_dict[self.input_placeholder] = inputs_batch
         if labels_batch is not None:
@@ -199,6 +199,7 @@ class RNNModel(NERModel):
         if mask_batch is not None:
             feed_dict[self.mask_placeholder] = mask_batch
         feed_dict[self.dropout_placeholder] = dropout
+
 
         ### END YOUR CODE
         return feed_dict
