@@ -279,13 +279,24 @@ class RNNModel(NERModel):
         # Define U and b2 as variables.
         # Initialize state as vector of zeros.
         ### YOUR CODE HERE (~4-6 lines)
-        h = tf.zeros(shape =, dtype=tf.float32)
+        hidden_size = self.config.hidden_size
+        n_classes = self.config.n_classes
+        initializer = tf.contrib.layers.xavier_initializer()
+        U = tf.Variable(initializer((hidden_size, n_classes)))
+        b2 = tf.Variable(tf.zeros(n_classes))
+
+        h = tf.zeros((1, hidden_size)) # zero h
         ### END YOUR CODE
 
-        #with tf.variable_scope("RNN"):
-        #    for time_step in range(self.max_length):
+        with tf.variable_scope("RNN"):
+           for time_step in range(self.max_length):
                 ### YOUR CODE HERE (~6-10 lines)
+                o, h = cell(x[:, time_step, :], h)
+                tf.get_variable_scope().reuse_variables()
+                o_drop_t = tf.nn.dropout(o, self.dropout_placeholder)
+                out = tf.matmul(o_drop_t, U) + b2
 
+                preds.append(out)
                 ### END YOUR CODE
 
         # Make sure to reshape @preds here.
