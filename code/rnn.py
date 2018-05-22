@@ -356,9 +356,8 @@ class RNNModel(NERModel):
         Returns:
             loss: A 0-d tensor (scalar)
         """
-        ### YOUR CODE HERE (~2-4 lines)
-
-        ### END YOUR CODE
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=preds, labels=self.labels_placeholder)
+        loss = tf.reduce_mean(tf.boolean_mask(cross_entropy, self.mask_placeholder))
         return loss
 
     def add_training_op(self, loss):
