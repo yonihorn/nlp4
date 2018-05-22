@@ -114,9 +114,9 @@ def pad_sequences(data, max_length):
             new_sentence = sentence + zero_vector * length_diff
             new_labels = labels + [zero_label] * length_diff
             mask = [True] * len(sentence) + [False] * length_diff
-            ret.append(new_sentence, new_labels, mask)
+            ret.append((new_sentence, new_labels, mask))
         else:
-            ret.append(sentence[:max_length], labels[:max_length], [True] * max_length)
+            ret.append((sentence[:max_length], labels[:max_length], [True] * max_length))
 
         ### END YOUR CODE ###
     return ret
@@ -156,7 +156,14 @@ class RNNModel(NERModel):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE (~4-6 lines)
-
+        self.input_placeholder = tf.placeholder(tf.int32, shape=
+            (None, self.max_length, self.config.n_features))
+        self.labels_placeholder = tf.placeholder(tf.int32,
+            shape=(None, self.max_length))
+        self.mask_placeholder = tf.placeholder(tf.bool,
+            shape=(None, self.max_length))
+        self.dropout_placeholder = tf.placeholder(tf.float32,
+            shape=())
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, mask_batch, labels_batch=None, dropout=1.0):
@@ -182,6 +189,15 @@ class RNNModel(NERModel):
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
         ### YOUR CODE (~6-10 lines)
+        feed_dict = {}
+        self.add_placeholders() # add the four placeholder (as self attributes)
+        if inputs_batch is not None:
+            feed_dict[self.input_placeholder] = inputs_batch
+        if labels_batch is not None:
+            feed_dict[self.labels_placeholder] = labels_batch
+        if mask_batch is not None:
+            feed_dict[self.mask_placeholder] = mask_batch
+        feed_dict[self.dropout_placeholder] = dropout
 
         ### END YOUR CODE
         return feed_dict
@@ -193,7 +209,7 @@ class RNNModel(NERModel):
         TODO:
             - Create an embedding tensor and initialize it with self.pretrained_embeddings.
             - Use the input_placeholder to index into the embeddings tensor, resulting in a
-              tensor of shape (None, max_length, n_features, embed_size).
+              tensor of shape (None, max_length, self.config.n_fea, embed_size).
             - Concatenates the embeddings by reshaping the embeddings tensor to shape
               (None, max_length, n_features * embed_size).
 
@@ -207,6 +223,12 @@ class RNNModel(NERModel):
             embeddings: tf.Tensor of shape (None, max_length, n_features*embed_size)
         """
         ### YOUR CODE HERE (~4-6 lines)
+        # initialize the embedding tensor
+        embedding_tensor = tf.Variable(self.pretrained_embeddings) 
+        lookup_embeddings = tf.nn.embedding_lookup(embedding_tensor, # the initialized embedding vector
+            self.input_placeholder)  # ids
+        embeddings = tf.reshape(
+            lookup_embeddings, [-1, self.max_length, self.config.n_features * self.config.embed_size])
 
         ### END YOUR CODE
         return embeddings
