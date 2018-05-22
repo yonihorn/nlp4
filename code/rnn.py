@@ -279,7 +279,7 @@ class RNNModel(NERModel):
         # Define U and b2 as variables.
         # Initialize state as vector of zeros.
         ### YOUR CODE HERE (~4-6 lines)
-
+        h = tf.zeros(shape =, dtype=tf.float32)
         ### END YOUR CODE
 
         #with tf.variable_scope("RNN"):
@@ -290,7 +290,7 @@ class RNNModel(NERModel):
 
         # Make sure to reshape @preds here.
         ### YOUR CODE HERE (~2-4 lines)
-
+        preds = tf.stack(preds, axis=1)
         ### END YOUR CODE
 
         return preds
