@@ -111,7 +111,7 @@ def pad_sequences(data, max_length):
     for sentence, labels in data:
         length_diff = max_length-len(sentence)
         if length_diff > 0 :
-            new_sentence = sentence + zero_vector * length_diff
+            new_sentence = sentence + [zero_vector] * length_diff
             new_labels = labels + [zero_label] * length_diff
             mask = [True] * len(sentence) + [False] * length_diff
             ret.append((new_sentence, new_labels, mask))
