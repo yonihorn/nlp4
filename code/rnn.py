@@ -157,13 +157,14 @@ class RNNModel(NERModel):
         """
         ### YOUR CODE HERE (~4-6 lines)
         self.input_placeholder = tf.placeholder(tf.int32, shape=
-            (None, self.max_length, self.config.n_features))
+            [None, self.max_length, self.config.n_features])
         self.labels_placeholder = tf.placeholder(tf.int32,
-            shape=(None, self.max_length))
+            shape=[None, self.max_length])
         self.mask_placeholder = tf.placeholder(tf.bool,
-            shape=(None, self.max_length))
+            shape=[None, self.max_length])
         self.dropout_placeholder = tf.placeholder(tf.float32,
-            shape=())
+            shape=[])
+
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, mask_batch, labels_batch=None, dropout=1.0):
@@ -396,7 +397,8 @@ class RNNModel(NERModel):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE (~1-2 lines)
-
+        optimizer = tf.train.AdamOptimizer(self.config.lr)
+        train_op = optimizer.minimize(loss)
         ### END YOUR CODE
         return train_op
 
