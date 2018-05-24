@@ -338,8 +338,10 @@ class RNNModel(NERModel):
         network = tf.contrib.rnn.DropoutWrapper(
             gru_cell, output_keep_prob=self.dropout_placeholder)
         # create dynamic RNN
-        outputs, state = tf.nn.dynamic_rnn(gru_cell, x, dtype=tf.float32)
-        # reshape & dense (outputs, n_classes I think) & reshape
+        outputs, _ = tf.nn.dynamic_rnn(gru_cell, x, dtype=tf.float32)
+        preds = tf.layers.dense(inputs=outputs, units=Config.n_classes,
+            kernel_initializer=tf.contrib.layers.xavier_initializer(),
+            bias_initializer=tf.contrib.layers.xavier_initializer())
 
 
         ### END YOUR CODE
@@ -444,7 +446,16 @@ class RNNModel(NERModel):
         records = []
 
         ### YOUR CODE HERE (~5-10 lines)
+        # add pred and loss
+        records.append(tf.summary.histogram('pred', pred))
+        records.append(tf.summary.scalar('loss', loss))
 
+        # calculate entropy average
+        self.probs = tf.clip_by_value(tf.nn.softmax(pred), 0.0, 1.0)
+        entropy = tf.boolean_mask(tensor=-tf.reduce_sum(self.probs * tf.log(self.probs),
+            axis=2), mask=self.mask_placeholder)
+        entropy_avg = tf.reduce_mean(entropy)
+        records.append(tf.summary.scalar(entropy_avg, 'entropy_avg'))
         ### END YOUR CODE
 
         assert hasattr(self, 'probs'), "self.probs should be set."
