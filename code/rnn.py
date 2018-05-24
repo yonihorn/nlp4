@@ -332,6 +332,14 @@ class RNNModel(NERModel):
             pred: tf.Tensor of shape (batch_size, max_length, n_classes)
         """
         ### YOUR CODE HERE (~4-6 lines)
+        # create a GRU cell with the same hidden size as before
+        gru_cell = tf.contrib.rnn.GRUCell(Config.hidden_size)
+        # apply dropout
+        network = tf.contrib.rnn.DropoutWrapper(
+            gru_cel, output_keep_prob=self.dropout_placeholder)
+        # create dynamic RNN
+        output, _ = tf.nn.dynamic_rnn(gru_cell, x, dtype=tf.float32)
+
 
         ### END YOUR CODE
 
