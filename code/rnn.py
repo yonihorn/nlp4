@@ -336,9 +336,10 @@ class RNNModel(NERModel):
         gru_cell = tf.contrib.rnn.GRUCell(Config.hidden_size)
         # apply dropout
         network = tf.contrib.rnn.DropoutWrapper(
-            gru_cel, output_keep_prob=self.dropout_placeholder)
+            gru_cell, output_keep_prob=self.dropout_placeholder)
         # create dynamic RNN
-        output, _ = tf.nn.dynamic_rnn(gru_cell, x, dtype=tf.float32)
+        outputs, state = tf.nn.dynamic_rnn(gru_cell, x, dtype=tf.float32)
+        # reshape & dense (outputs, n_classes I think) & reshape
 
 
         ### END YOUR CODE
