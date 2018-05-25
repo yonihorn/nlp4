@@ -455,7 +455,7 @@ class RNNModel(NERModel):
         entropy = tf.boolean_mask(tensor=-tf.reduce_sum(self.probs * tf.log(self.probs),
             axis=2), mask=self.mask_placeholder)
         entropy_avg = tf.reduce_mean(entropy)
-        records.append(tf.summary.scalar(entropy_avg, 'entropy_avg'))
+        records.append(tf.summary.scalar('entropy_avg', entropy_avg))
         ### END YOUR CODE
 
         assert hasattr(self, 'probs'), "self.probs should be set."
