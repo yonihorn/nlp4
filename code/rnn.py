@@ -455,7 +455,7 @@ class RNNModel(NERModel):
 
         # calculate entropy average
         probs_after_clipping = tf.clip_by_value(tf.nn.softmax(probs_after_masking), 0.0001, 1.0)
-        entropy = -tf.reduce_sum(probs_after_masking * tf.log(probs_after_clipping), axis=2)
+        entropy = -tf.reduce_sum(probs_after_masking * tf.log(probs_after_clipping), axis=0)
         avg_entropy = tf.reduce_mean(entropy)
         records.append(tf.summary.scalar('avg_entropy', avg_entropy))
         ### END YOUR CODE
@@ -626,6 +626,7 @@ def do_train(args):
                 with open(model.config.conll_output, 'w') as f:
                     write_conll(f, output)
                 with open(model.config.eval_output, 'w') as f:
+                    output = zip(sentences, labels, predictions)
                     for sentence, labels, predictions in output:
                         print_sentence(f, sentence, labels, predictions)
 
