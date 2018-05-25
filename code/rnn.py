@@ -446,16 +446,18 @@ class RNNModel(NERModel):
         records = []
 
         ### YOUR CODE HERE (~5-10 lines)
-        # add pred and loss
+        # add pred and loss summaries
         records.append(tf.summary.histogram('pred', pred))
         records.append(tf.summary.scalar('loss', loss))
 
+        self.probs = tf.nn.softmax(pred)
+        probs_after_masking = tf.boolean_mask(self.probs, self.mask_placeholder)
+
         # calculate entropy average
-        self.probs = tf.clip_by_value(tf.nn.softmax(pred), 0.0, 1.0)
-        entropy = tf.boolean_mask(tensor=-tf.reduce_sum(self.probs * tf.log(self.probs),
-            axis=2), mask=self.mask_placeholder)
-        entropy_avg = tf.reduce_mean(entropy)
-        records.append(tf.summary.scalar('entropy_avg', entropy_avg))
+        probs_after_clipping = tf.clip_by_value(tf.nn.softmax(probs_after_masking), 0.0001, 1.0)
+        entropy = -tf.reduce_sum(probs_after_masking * tf.log(probs_after_clipping), axis=2)
+        avg_entropy = tf.reduce_mean(entropy)
+        records.append(tf.summary.scalar('avg_entropy', avg_entropy))
         ### END YOUR CODE
 
         assert hasattr(self, 'probs'), "self.probs should be set."
